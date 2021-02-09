@@ -576,7 +576,8 @@ static int connect_qp(struct resources *res) {
                      remote_con_data.gid);
 
     // modify QP state to RTS
-    modify_qp_to_rts(res->qp);
+    if (config.server_name)
+        modify_qp_to_rts(res->qp);
 
     // sync to make sure that both sides are in states that they can connect to
     // prevent packet lose
@@ -828,22 +829,22 @@ int main(int argc, char *argv[]) {
     // connect the QPs
     connect_qp(&res);
 
-    // let server post the sr
-    if (!config.server_name)
-        post_send(&res, IBV_WR_SEND);
+    // // let server post the sr
+    // if (!config.server_name)
+    //     post_send(&res, IBV_WR_SEND);
 
-    // in both sides we expect to get a completion
-    // @server: there's a send completion
-    // @client: there's a recv completion
-    poll_completion(&res);
+    // // in both sides we expect to get a completion
+    // // @server: there's a send completion
+    // // @client: there's a recv completion
+    // poll_completion(&res);
 
-    // after polling the completion we have the message in the client buffer too
-    if (config.server_name) {
-        INFO("Message is: %s\n", res.buf);
-    } else {
-        // setup server buffer with read message
-        strcpy(res.buf, RDMAMSGR);
-    }
+    // // after polling the completion we have the message in the client buffer too
+    // if (config.server_name) {
+    //     INFO("Message is: %s\n", res.buf);
+    // } else {
+    //     // setup server buffer with read message
+    //     strcpy(res.buf, RDMAMSGR);
+    // }
 
     // sync so we are sure server side has data ready before client tries to
     // read it
